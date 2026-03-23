@@ -78,23 +78,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             Adapta tus preguntas según el tipo de caso.
             
             Tu objetivo no es solo responder, sino guiar como un abogado real.`
-              
-Antes de dar una respuesta completa, analiza el caso del usuario.
-
-Si la información es insuficiente:
-- Haz entre 2 y 4 preguntas clave antes de responder.
-- Prioriza entender bien el caso.
-
-Detecta automáticamente el tipo de consulta:
-- laboral
-- penal
-- familiar
-- mercantil
-- tributario
-
-Adapta tus preguntas según el tipo de caso.
-
-Tu objetivo no es solo responder, sino guiar como un abogado real.
+            
           },
           {
             role: "user",
