@@ -1,7 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Manejar CORS si es necesario
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
@@ -10,17 +9,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Método no permitido' });
   }
 
-  const { messages } = req.body;
+  console.log('BODY RECIBIDO:', req.body);
+
+  const { messages } = req.body || {};
   console.log('MENSAJES RECIBIDOS:', messages);
 
-  if (!messages || !Array.isArray(messages)) {
-    return res.status(400).json({ error: 'Formato de mensajes inválido' });
+  if (!Array.isArray(messages)) {
+    return res.status(400).json({
+      error: 'Formato de mensajes inválido',
+      recibido: req.body,
+    });
   }
 
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
-    return res.status(500).json({ error: 'OPENAI_API_KEY no está configurada en el servidor' });
+    return res.status(500).json({
+      error: 'OPENAI_API_KEY no está configurada en el servidor',
+    });
   }
 
   try {
@@ -28,7 +34,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: 'gpt-4o-mini',
@@ -78,23 +84,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               "- Mantén claridad y simplicidad.\n\n" +
               "Siempre busca que la persona sienta que está avanzando en su caso."
           },
-          ...messages
+          ...messages,
         ],
-        temperature: 0.4
+        temperature: 0.4,
       }),
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error?.message || 'Error en la API de OpenAI');
+      console.error('ERROR OPENAI:', data);
+      return res.status(response.status).json({
+        error: data?.error?.message || 'Error en la API de OpenAI',
+      });
     }
 
-    const data = await response.json();
-    const text = data.choices?.[0]?.message?.content || 'No se obtuvo respuesta del asistente.';
+    const text =
+      data?.choices?.[0]?.message?.content || 'No se obtuvo respuesta del asistente.';
 
     return res.status(200).json({ text });
   } catch (error: any) {
     console.error('Error en OpenAI API:', error);
-    return res.status(500).json({ error: 'Error interno al procesar la consulta legal' });
+    return res.status(500).json({
+      error: 'Error interno al procesar la consulta legal',
+    });
   }
 }
