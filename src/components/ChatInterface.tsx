@@ -28,6 +28,14 @@ interface Message {
   content: string;
 }
 
+const INITIAL_MESSAGES: Message[] = [
+  {
+    role: 'assistant',
+    content:
+      'Saludos. Soy su asistente legal virtual especializado en la legislación venezolana. ¿En qué puedo asesorarle hoy? Por favor, recuerde que esta es una consulta informativa y no sustituye el consejo legal formal.',
+  },
+];
+
 const TOPICS = [
   { name: 'Contratos', icon: <FileText className="w-4 h-4" /> },
   { name: 'Laboral', icon: <Briefcase className="w-4 h-4" /> },
@@ -38,23 +46,39 @@ const TOPICS = [
 ];
 
 export default function ChatInterface() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: 'assistant',
-      content:
-        'Saludos. Soy su asistente legal virtual especializado en la legislación venezolana. ¿En qué puedo asesorarle hoy? Por favor, recuerde que esta es una consulta informativa y no sustituye el consejo legal formal.',
-    },
-  ]);
-
+  const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const savedMessages = localStorage.getItem('chat_messages');
+    if (savedMessages) {
+      try {
+        const parsed = JSON.parse(savedMessages);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setMessages(parsed);
+        }
+      } catch (error) {
+        console.error('Error cargando historial guardado:', error);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('chat_messages', JSON.stringify(messages));
+  }, [messages]);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const clearChat = () => {
+    setMessages(INITIAL_MESSAGES);
+    localStorage.setItem('chat_messages', JSON.stringify(INITIAL_MESSAGES));
+  };
 
   const handleSend = async (textOverride?: string) => {
     const textToSend = textOverride || input;
@@ -101,9 +125,18 @@ export default function ChatInterface() {
     <div className="flex h-screen max-w-6xl mx-auto bg-[#F8F6F0] shadow-2xl overflow-hidden">
       <aside className="hidden md:flex flex-col w-64 bg-stone-900 text-stone-300 border-r border-stone-800">
         <div className="p-6 border-b border-stone-800">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-stone-500 mb-4">
-            Temas Frecuentes
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-stone-500">
+              Temas Frecuentes
+            </h2>
+            <button
+              onClick={clearChat}
+              className="text-[10px] px-2 py-1 rounded-md bg-stone-800 hover:bg-stone-700 text-stone-300 transition-colors"
+            >
+              Limpiar
+            </button>
+          </div>
+
           <nav className="space-y-1">
             {TOPICS.map((topic) => (
               <button
@@ -154,9 +187,17 @@ export default function ChatInterface() {
             </div>
           </div>
 
-          <div className="hidden sm:flex items-center gap-2 text-xs text-blue-100/60 italic">
-            <Info className="w-4 h-4" />
-            <span>Marco Legal Vigente 2026</span>
+          <div className="hidden sm:flex items-center gap-3">
+            <button
+              onClick={clearChat}
+              className="px-3 py-1.5 text-xs rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition-colors"
+            >
+              Nueva consulta
+            </button>
+            <div className="hidden sm:flex items-center gap-2 text-xs text-blue-100/60 italic">
+              <Info className="w-4 h-4" />
+              <span>Marco Legal Vigente 2026</span>
+            </div>
           </div>
         </header>
 
