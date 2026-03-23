@@ -9,24 +9,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Método no permitido' });
   }
 
-  console.log('BODY RECIBIDO:', req.body);
+  const { message } = req.body;
 
-  const { messages } = req.body || {};
-  console.log('MENSAJES RECIBIDOS:', messages);
-
-  if (!Array.isArray(messages)) {
-    return res.status(400).json({
-      error: 'Formato de mensajes inválido',
-      recibido: req.body,
-    });
+  if (!message) {
+    return res.status(400).json({ error: 'El mensaje es requerido' });
   }
 
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
-    return res.status(500).json({
-      error: 'OPENAI_API_KEY no está configurada en el servidor',
-    });
+    return res.status(500).json({ error: 'OPENAI_API_KEY no está configurada en el servidor' });
   }
 
   try {
@@ -34,7 +26,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
+        'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: 'gpt-4o-mini',
@@ -84,16 +76,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               "- Mantén claridad y simplicidad.\n\n" +
               "Siempre busca que la persona sienta que está avanzando en su caso."
           },
-          ...messages,
+          {
+            role: 'user',
+            content: message
+          }
         ],
-        temperature: 0.4,
+        temperature: 0.4
       }),
     });
 
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('ERROR OPENAI:', data);
       return res.status(response.status).json({
         error: data?.error?.message || 'Error en la API de OpenAI',
       });
