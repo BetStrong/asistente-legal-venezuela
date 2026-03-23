@@ -6,15 +6,16 @@ export async function sendMessage(messages: any[]) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        messages: messages || []
+        messages: messages || [],
+      }),
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Error en la comunicación con el servidor');
+      throw new Error(data.error || 'Error en la comunicación con el servidor');
     }
 
-    const data = await response.json();
     return data.text;
   } catch (error) {
     console.error('Error al llamar a la API de chat:', error);
