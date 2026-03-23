@@ -77,7 +77,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             
             Adapta tus preguntas según el tipo de caso.
             
-            Tu objetivo no es solo responder, sino guiar como un abogado real.`
+            Tu objetivo no es solo responder, sino guiar como un abogado real.
+            
+            Después de hacer preguntas, si tienes suficiente información:
+            - Da una orientación breve.
+            - Sugiere los siguientes pasos que la persona debería tomar.
+            - Mantén claridad y simplicidad.
+            
+            Siempre busca que la persona sienta que está avanzando en su caso.`
             
           },
           {
