@@ -42,33 +42,44 @@ export default function ChatInterface() {
   }, [messages]);
 
   const handleSend = async (textOverride?: string) => {
-    const textToSend = textOverride || input;
-    if (!textToSend.trim() || isLoading) return;
+  const textToSend = textOverride || input;
+  if (!textToSend.trim() || isLoading) return;
 
-    const userMessage = textToSend.trim();
-    const updatedMessages = [...messages, { role: 'user', content: userMessage as string }];
-    
-    setInput('');
-    setMessages(updatedMessages);
-    setIsLoading(true);
+  const userMessage = textToSend.trim();
 
-    try {
-      const response = await sendMessage(updatedMessages);
-       setMessages([
-         ...updatedMessages,
-         { role: 'assistant', content: response || 'Lo siento, no pude procesar su solicitud.' }
-         ]);
-    } catch (error) {
-      console.error('Error sending message:', error);
-      setMessages([
-        ...updatedMessages,
-        { role: 'assistant', content: 'Hubo un error al conectar con el servidor legal. Por favor, intente de nuevo.' }
-        ]);
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const updatedMessages: Message[] = [
+    ...messages,
+    { role: 'user', content: userMessage }
+  ];
+
+  setInput('');
+  setMessages(updatedMessages);
+  setIsLoading(true);
+
+  try {
+    const response = await sendMessage(updatedMessages);
+
+    setMessages([
+      ...updatedMessages,
+      {
+        role: 'assistant',
+        content: response || 'Lo siento, no pude procesar su solicitud.'
+      }
+    ]);
+  } catch (error) {
+    console.error('Error sending message:', error);
+
+    setMessages([
+      ...updatedMessages,
+      {
+        role: 'assistant',
+        content: 'Hubo un error al conectar con el servidor legal. Por favor, intente de nuevo.'
+      }
+    ]);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="flex h-screen max-w-6xl mx-auto bg-[#F8F6F0] shadow-2xl overflow-hidden">
