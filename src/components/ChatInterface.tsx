@@ -52,7 +52,9 @@ export default function ChatInterface() {
     setIsLoading(true);
 
     try {
-      const response = await sendMessage(userMessage);
+      const response = await sendMessage(
+        messages.concat({ role: 'user', content: userMessage })
+      );
 
       setMessages((prev) => [
         ...prev,
