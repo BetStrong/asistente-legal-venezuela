@@ -16,7 +16,7 @@ export async function sendMessage(messages: any[]) {
 
     return data.text;
   } catch (error) {
-    console.error(error);
+    console.error('Error al llamar a la API:', error);
     throw error;
   }
 }
