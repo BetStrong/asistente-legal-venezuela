@@ -53,7 +53,7 @@ export default function ChatInterface() {
     setIsLoading(true);
 
     try {
-      const response = await sendMessage(userMessage);
+      const response = await sendMessage(updatedMessages);
        setMessages([
          ...updatedMessages,
          { role: 'assistant', content: response || 'Lo siento, no pude procesar su solicitud.' }
