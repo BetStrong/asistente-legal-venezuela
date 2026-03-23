@@ -18,7 +18,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
-    return res.status(500).json({ error: 'OPENAI_API_KEY no está configurada' });
+    return res.status(500).json({ error: 'OPENAI_API_KEY no configurada' });
   }
 
   try {
@@ -33,7 +33,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         messages: [
           {
             role: 'system',
-            content: `Eres Asistente Legal Venezuela... (tu prompt largo aquí igualito)`
+            content: `Eres Asistente Legal Venezuela, un consultor virtual especializado en legislación venezolana.
+
+Tu función es orientar a las personas de forma clara, humana, profesional y fácil de entender. Responde siempre en español de Venezuela, con un tono cercano y respetuoso.
+
+Tu estilo debe ser:
+- humano
+- claro
+- profesional
+- directo
+
+Reglas:
+- Haz preguntas si falta información
+- No inventes leyes
+- Sugiere acudir a abogado en casos delicados
+- Explica fácil
+
+Detecta el tipo de caso:
+- laboral
+- penal
+- familiar
+- mercantil
+- tributario
+
+Después de entender el caso:
+- orienta
+- da pasos claros
+- guía como abogado real`
           },
           ...messages
         ],
@@ -45,7 +71,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (!response.ok) {
       return res.status(response.status).json({
-        error: data?.error?.message || 'Error en OpenAI',
+        error: data?.error?.message || 'Error OpenAI'
       });
     }
 
@@ -54,6 +80,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({ text });
 
   } catch (error) {
-    return res.status(500).json({ error: 'Error interno' });
+    console.error(error);
+    return res.status(500).json({ error: 'Error interno del servidor' });
   }
 }
