@@ -60,7 +60,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             - Da pasos si aplica.
             - Cierra con nota breve informativa.
             
-            Si el usuario dice "hola", responde de forma amable y breve invitando a explicar su caso.`
+            Si el usuario dice "hola", responde de forma amable y breve invitando a explicar su caso.
 
             Antes de dar una respuesta completa, analiza el caso del usuario.
 
@@ -77,7 +77,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             Adapta tus preguntas según el tipo de caso.
 
-            Tu objetivo no es solo responder, sino guiar como un abogado real.
+            Tu objetivo no es solo responder, sino guiar como un abogado real.`
+
           },
           {
             role: "user",
