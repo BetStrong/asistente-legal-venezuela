@@ -46,18 +46,24 @@ export default function ChatInterface() {
     if (!textToSend.trim() || isLoading) return;
 
     const userMessage = textToSend.trim();
+    const updatedMessages = [...messages, { role: 'user', content: userMessage as string }];
+    
     setInput('');
-    setMessages((prev) => [...prev, { role: 'user', content: userMessage }]);
+    setMessages(updatedMessages);
     setIsLoading(true);
 
     try {
       const response = await sendMessage(userMessage);
-      setMessages((prev) => [...prev, { role: 'assistant', content: response || 'Lo siento, no pude procesar su solicitud.' }]);
+       setMessages([
+         ...updatedMessages,
+         { role: 'assistant', content: response || 'Lo siento, no pude procesar su solicitud.' }
+         ]);
     } catch (error) {
       console.error('Error sending message:', error);
-      setMessages((prev) => [
-        ...prev,
-        { role: 'assistant', content: 'Hubo un error al conectar con el servidor legal. Por favor, intente de nuevo.' },
+      setMessages([
+        ...updatedMessages,
+        { role: 'assistant', content: 'Hubo un error al conectar con el servidor legal. Por favor, intente de nuevo.' }
+        ]);
       ]);
     } finally {
       setIsLoading(false);
