@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Scale, User, Bot, Loader2, Info, FileText, Briefcase, Gavel, Users, ShoppingBag, Landmark, ChevronRight } from 'lucide-react';
+import { Send, Scale, User, Bot, Info, FileText, Briefcase, Gavel, Users, ShoppingBag, Landmark, ChevronRight } from 'lucide-react';
 import Markdown from 'react-markdown';
 import { sendMessage } from '../services/gemini';
 import { clsx, type ClassValue } from 'clsx';
@@ -42,48 +42,42 @@ export default function ChatInterface() {
   }, [messages]);
 
   const handleSend = async (textOverride?: string) => {
-  const textToSend = textOverride || input;
-  if (!textToSend.trim() || isLoading) return;
+    const textToSend = textOverride || input;
+    if (!textToSend.trim() || isLoading) return;
 
-  const userMessage = textToSend.trim();
+    const userMessage = textToSend.trim();
 
-  const updatedMessages: Message[] = [
-    ...messages,
-    { role: 'user', content: userMessage }
-  ];
+    setInput('');
+    setMessages((prev) => [...prev, { role: 'user', content: userMessage }]);
+    setIsLoading(true);
 
-  setInput('');
-  setMessages(updatedMessages);
-  setIsLoading(true);
+    try {
+      const response = await sendMessage(userMessage);
 
-  try {
-    const response = await sendMessage(updatedMessages);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: response || 'Lo siento, no pude procesar su solicitud.'
+        }
+      ]);
+    } catch (error) {
+      console.error('Error sending message:', error);
 
-    setMessages([
-      ...updatedMessages,
-      {
-        role: 'assistant',
-        content: response || 'Lo siento, no pude procesar su solicitud.'
-      }
-    ]);
-  } catch (error) {
-    console.error('Error sending message:', error);
-
-    setMessages([
-      ...updatedMessages,
-      {
-        role: 'assistant',
-        content: 'Hubo un error al conectar con el servidor legal. Por favor, intente de nuevo.'
-      }
-    ]);
-  } finally {
-    setIsLoading(false);
-  }
-};
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: 'Hubo un error al conectar con el servidor legal. Por favor, intente de nuevo.'
+        }
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex h-screen max-w-6xl mx-auto bg-[#F8F6F0] shadow-2xl overflow-hidden">
-      {/* Sidebar */}
       <aside className="hidden md:flex flex-col w-64 bg-stone-900 text-stone-300 border-r border-stone-800">
         <div className="p-6 border-b border-stone-800">
           <h2 className="text-xs font-bold uppercase tracking-widest text-stone-500 mb-4">Temas Frecuentes</h2>
@@ -109,9 +103,7 @@ export default function ChatInterface() {
         </div>
       </aside>
 
-      {/* Main Chat Container */}
       <div className="flex-1 flex flex-col bg-transparent relative">
-        {/* Header */}
         <header className="p-6 bg-gradient-to-r from-[#001F3F] to-[#0074D9] text-white flex items-center justify-between shadow-lg z-10">
           <div className="flex items-center gap-4">
             <div className="p-2.5 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
@@ -134,8 +126,7 @@ export default function ChatInterface() {
           </div>
         </header>
 
-        {/* Chat Area */}
-        <div 
+        <div
           ref={scrollRef}
           className="flex-1 overflow-y-auto p-6 space-y-8"
         >
@@ -158,8 +149,8 @@ export default function ChatInterface() {
                 </div>
                 <div className={cn(
                   "p-5 rounded-2xl",
-                  msg.role === 'user' 
-                    ? "bg-stone-800 text-white rounded-tr-none shadow-lg" 
+                  msg.role === 'user'
+                    ? "bg-stone-800 text-white rounded-tr-none shadow-lg"
                     : "bg-white border-l-[3px] border-[#FFD700] text-stone-800 rounded-tl-none shadow-md"
                 )}>
                   <div className="markdown-body prose prose-stone max-w-none">
@@ -169,9 +160,9 @@ export default function ChatInterface() {
               </motion.div>
             ))}
           </AnimatePresence>
-          
+
           {isLoading && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="flex gap-4 max-w-[85%] mr-auto"
@@ -181,20 +172,20 @@ export default function ChatInterface() {
               </div>
               <div className="p-5 rounded-2xl bg-white border-l-[3px] border-[#FFD700] rounded-tl-none shadow-md flex items-center gap-3">
                 <div className="flex gap-1">
-                  <motion.span 
+                  <motion.span
                     animate={{ scale: [1, 1.5, 1] }}
                     transition={{ repeat: Infinity, duration: 1, times: [0, 0.5, 1] }}
-                    className="w-1.5 h-1.5 bg-[#FFD700] rounded-full" 
+                    className="w-1.5 h-1.5 bg-[#FFD700] rounded-full"
                   />
-                  <motion.span 
+                  <motion.span
                     animate={{ scale: [1, 1.5, 1] }}
                     transition={{ repeat: Infinity, duration: 1, delay: 0.2, times: [0, 0.5, 1] }}
-                    className="w-1.5 h-1.5 bg-[#FFD700] rounded-full" 
+                    className="w-1.5 h-1.5 bg-[#FFD700] rounded-full"
                   />
-                  <motion.span 
+                  <motion.span
                     animate={{ scale: [1, 1.5, 1] }}
                     transition={{ repeat: Infinity, duration: 1, delay: 0.4, times: [0, 0.5, 1] }}
-                    className="w-1.5 h-1.5 bg-[#FFD700] rounded-full" 
+                    className="w-1.5 h-1.5 bg-[#FFD700] rounded-full"
                   />
                 </div>
                 <span className="text-sm text-stone-500 font-medium italic">El abogado está redactando su respuesta...</span>
@@ -203,7 +194,6 @@ export default function ChatInterface() {
           )}
         </div>
 
-        {/* Input Area */}
         <div className="p-6 bg-white/50 backdrop-blur-md border-t border-stone-200">
           <div className="relative flex items-center max-w-4xl mx-auto">
             <textarea
@@ -232,7 +222,7 @@ export default function ChatInterface() {
               Jurisdicción: República Bolivariana de Venezuela
             </p>
             <p className="text-[10px] text-stone-400 max-w-lg text-center leading-tight">
-              Este sistema utiliza Inteligencia Artificial para orientación informativa. 
+              Este sistema utiliza Inteligencia Artificial para orientación informativa.
               Verifique siempre en Gaceta Oficial. No constituye una relación abogado-cliente.
             </p>
           </div>
@@ -241,4 +231,3 @@ export default function ChatInterface() {
     </div>
   );
 }
-
